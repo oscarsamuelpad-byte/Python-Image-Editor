@@ -1,5 +1,4 @@
 # Import things
-from email.mime import image
 
 from PIL import Image, ImageTk, ImageFilter, ImageOps
 import ttkbootstrap as ttk
@@ -180,13 +179,14 @@ def flip_image():
 
 
 
+
 #button components
 
 button_frame = ttk.Frame(app)
 button_frame.pack(pady=10)
 button_frame.pack(anchor="center")
 
-Open_icon = Image.open("Open.png")
+Open_icon = Image.open("assets/Open.png")
 Open_icon = Open_icon.resize((40, 40))
 Open_icon = ImageTk.PhotoImage(Open_icon)
 
@@ -201,7 +201,7 @@ Open_icon.image = Open_icon
 OpenImage.pack(side =tk.LEFT, pady=20, ipadx=10, ipady=10)
 
 
-save_icon = Image.open("save.png")
+save_icon = Image.open("assets/save.png")
 save_icon = save_icon.resize((40, 40))
 save_icon = ImageTk.PhotoImage(save_icon)
 
@@ -229,7 +229,7 @@ FilterImage.set('Select Filter')
 ttk.Button(app, text="Apply", bootstyle = 'warning', command = filter_image).pack(side=tk.LEFT, pady=20, padx = 10)
 
 
-rotate_icon = Image.open("rotate.png")
+rotate_icon = Image.open("assets/rotate.png")
 rotate_icon = rotate_icon.resize((40, 40))
 rotate_icon = ImageTk.PhotoImage(rotate_icon)
 
@@ -244,7 +244,7 @@ RotateImage = ttk.Button(
 rotate_icon.image = rotate_icon
 RotateImage.pack(side = tk.LEFT, pady=20, padx=10, ipadx= 10, ipady=10)
 
-flip_icon = Image.open("flip.png")
+flip_icon = Image.open("assets/flip.png")
 flip_icon = flip_icon.resize((40, 40))
 flip_Icon = ImageTk.PhotoImage(flip_icon)
 
@@ -259,5 +259,19 @@ FlipImage = ttk.Button(
 flip_icon.image = flip_icon
 FlipImage.pack(side = tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)       
 
+undo_icon = Image.open("assets/undo.png")
+undo_icon = undo_icon.resize((40, 40))
+undo_icon = ImageTk.PhotoImage(undo_icon)
+
+UndoAction = ttk.Button(
+    app,
+    image = undo_icon,
+    bootstyle = 'Warning',
+    #command = undo_image,
+    width = 20
+)
+
+undo_icon.image = undo_icon
+UndoAction.pack(side = tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 
 app.mainloop()
