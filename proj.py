@@ -27,7 +27,7 @@ def redraw_image():
         canvas.delete('all')
         if display_Image is None:
            
-            canvas.create_text(400, 250, text='Open an image to begin', fill='white', font=(None, 16))
+            canvas.create_text(500, 250, text='Open an image to begin', fill='white', font=(None, 16))
             return
         
         canvas_w = canvas.winfo_width()
@@ -40,7 +40,7 @@ def redraw_image():
 
 def save_image():
      if current_Image is None:
-        messagebox.showinfo('Save Image', 'No image to save')
+        messagebox.showinfo('Missing Image', 'No image to save')
         return
      path = filedialog.asksaveasfilename(defaultextension='.png', filetypes=[('PNG', '*.png'), ('JPEG', '*.jpg;*.jpeg'), ('BMP', '*.bmp')])
 
@@ -85,6 +85,10 @@ def open_image():
 
 #button components
 
+button_frame = ttk.Frame(app)
+button_frame.pack(pady=10)
+button_frame.pack(anchor="center")
+
 OpenImage = ttk.Button(
     app,
     text="Import Image",
@@ -94,16 +98,25 @@ OpenImage = ttk.Button(
 )
 
 
-OpenImage.pack(pady=20, ipadx=10, ipady=10)
+OpenImage.pack(side =tk.LEFT, pady=20, ipadx=10, ipady=10)
+
+
+save_icon = Image.open("test.png")
+save_icon = save_icon.resize((40, 40))
+save_icon = ImageTk.PhotoImage(save_icon)
 
 SaveImage = ttk.Button(
+
      app,
-     text = "Save Image As",
+     image = save_icon,
      bootstyle="warning",
      command = save_image,
      width=20
+    
 )
+SaveImage.image = save_icon
+SaveImage.pack(side =tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 
-SaveImage.pack(pady=20, ipadx=10, ipady=10)
+
 
 app.mainloop()
