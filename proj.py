@@ -38,8 +38,17 @@ def redraw_image():
         y = max(0, (canvas_h - img_h) // 2)
         canvas.create_image(x, y, anchor='nw', image=display_Image)
 
+def save_image():
+     if current_Image is None:
+        messagebox.showinfo('Save Image', 'No image to save')
+        return
+     path = filedialog.asksaveasfilename(defaultextension='.png', filetypes=[('PNG', '*.png'), ('JPEG', '*.jpg;*.jpeg'), ('BMP', '*.bmp')])
+
+     if path:
+         current_Image.save(path)
 
 def open_image():
+    global current_Image, display_Image # Use global variables to store the current and display images, so variable update outside function
     path = filedialog.askopenfilename(
         filetypes=[('Image files', '*.png;*.jpg;*.jpeg;*.bmp')]
     )
@@ -53,10 +62,28 @@ def open_image():
     except Exception as e:
         messagebox.showerror('Open Image', f'Failed to open image:\n{e}')
 
-    current_Image = img
-    display_Image = img
+    
 
-#button component
+    current_Image = img
+
+    #Now, we need to rescale the image
+
+    canvas.update()
+    canvas_w = canvas.winfo_width()
+    canvas_h = canvas.winfo_height()
+
+    img_w, img_h = img.size
+    scale = min(canvas_w / img_w, canvas_h / img_h)
+
+    new_w = int(img_w * scale)
+    new_h = int(img_h * scale)
+
+    resized =  img.resize((new_w, new_h), Image.LANCZOS)
+
+    display_Image = ImageTk.PhotoImage(resized) #added tkinter compatibility
+    redraw_image() #no recall, nothing was redrawn and no display
+
+#button components
 
 OpenImage = ttk.Button(
     app,
@@ -68,5 +95,15 @@ OpenImage = ttk.Button(
 
 
 OpenImage.pack(pady=20, ipadx=10, ipady=10)
+
+SaveImage = ttk.Button(
+     app,
+     text = "Save Image As",
+     bootstyle="warning",
+     command = save_image,
+     width=20
+)
+
+SaveImage.pack(pady=20, ipadx=10, ipady=10)
 
 app.mainloop()
