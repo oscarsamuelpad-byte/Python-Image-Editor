@@ -133,7 +133,27 @@ def filter_image():
 
     redraw_image() 
 
+def rotate_image():
+    global current_Image, display_Image
+    if current_Image is None:
+        messagebox.showinfo('Missing Image', 'Image required to rotate')
+        return
+    current_Image = current_Image.rotate(-90, expand=True)
 
+    canvas.update()
+    canvas_w = canvas.winfo_width()
+    canvas_h = canvas.winfo_height()
+
+    img_w, img_h = current_Image.size
+    scale = min(canvas_w / img_w, canvas_h / img_h)
+
+    new_w = int(img_w * scale)
+    new_h = int(img_h * scale)
+
+    resized =  current_Image.resize((new_w, new_h), Image.LANCZOS)
+
+    display_Image = ImageTk.PhotoImage(resized) 
+    redraw_image() 
     
 
 
@@ -184,5 +204,22 @@ FilterImage.pack(side = tk.LEFT, pady=20, padx=10,)
 FilterImage.set('Select Filter') 
 
 ttk.Button(app, text="Apply", bootstyle = 'warning', command = filter_image).pack(side=tk.LEFT, pady=20, padx = 10)
+
+
+rotate_icon = Image.open("rotate.png")
+rotate_icon = rotate_icon.resize((40, 40))
+rotate_icon = ImageTk.PhotoImage(rotate_icon)
+
+RotateImage = ttk.Button(
+        app,
+        image = rotate_icon,
+        bootstyle = 'Warning',
+        command = rotate_image,
+        width = 20
+)
+
+rotate_icon.image = rotate_icon
+RotateImage.pack(side = tk.LEFT, pady=20, padx=10, ipadx=
+10, ipady=10)
 
 app.mainloop()
