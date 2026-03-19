@@ -136,7 +136,7 @@ def filter_image():
 def rotate_image():
     global current_Image, display_Image
     if current_Image is None:
-        messagebox.showinfo('Missing Image', 'Image required to rotate')
+        messagebox.showinfo('Missing Image', 'Image is required before rotating')
         return
     current_Image = current_Image.rotate(-90, expand=True)
 
@@ -155,6 +155,29 @@ def rotate_image():
     display_Image = ImageTk.PhotoImage(resized) 
     redraw_image() 
     
+def flip_image():
+    global current_Image, display_Image
+
+    if current_Image is None:
+        messagebox.showinfo('Missing Image', 'Image is required before flipping')
+        return
+    current_Image = ImageOps.mirror(current_Image)
+
+    canvas.update()
+    canvas_w = canvas.winfo_width()
+    canvas_h = canvas.winfo_height()
+
+    img_w, img_h = current_Image.size
+    scale = min(canvas_w / img_w, canvas_h / img_h)
+
+    new_w = int(img_w * scale)
+    new_h = int(img_h * scale)
+
+    resized =  current_Image.resize((new_w, new_h), Image.LANCZOS)
+
+    display_Image = ImageTk.PhotoImage(resized) 
+    redraw_image() 
+
 
 
 #button components
@@ -219,7 +242,22 @@ RotateImage = ttk.Button(
 )
 
 rotate_icon.image = rotate_icon
-RotateImage.pack(side = tk.LEFT, pady=20, padx=10, ipadx=
-10, ipady=10)
+RotateImage.pack(side = tk.LEFT, pady=20, padx=10, ipadx= 10, ipady=10)
+
+flip_icon = Image.open("flip.png")
+flip_icon = flip_icon.resize((40, 40))
+flip_Icon = ImageTk.PhotoImage(flip_icon)
+
+FlipImage = ttk.Button(
+    app,
+    image = flip_Icon,
+    bootstyle = 'Warning',
+    command = flip_image,
+    width = 20
+)
+
+flip_icon.image = flip_icon
+FlipImage.pack(side = tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)       
+
 
 app.mainloop()
