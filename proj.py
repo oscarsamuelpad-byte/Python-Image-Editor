@@ -1,3 +1,4 @@
+# Import things
 from PIL import Image, ImageTk
 import ttkbootstrap as ttk
 import tkinter as tk
@@ -6,6 +7,7 @@ from ttkbootstrap.constants import *
 import os
 
 
+#app window tingz
 app = ttk.Window(themename = "darkly")
 app.title("Photo Editor 1.0")
 app.geometry("1280x720")
@@ -19,13 +21,15 @@ canvas = tk.Canvas(center_frame, bg="#333333")
 canvas.pack(fill=tk.BOTH, expand=True)
 canvas.bind('<Configure>', lambda e: redraw_image())
 
+#functions
+
 def redraw_image():
         canvas.delete('all')
         if display_Image is None:
-            # show placeholder
+           
             canvas.create_text(400, 250, text='Open an image to begin', fill='white', font=(None, 16))
             return
-        # center image on canvas
+        
         canvas_w = canvas.winfo_width()
         canvas_h = canvas.winfo_height()
         img_w = display_Image.width()
@@ -52,6 +56,7 @@ def open_image():
     current_Image = img
     display_Image = img
 
+#button component
 
 OpenImage = ttk.Button(
     app,
