@@ -1,5 +1,7 @@
 # Import things
-from PIL import Image, ImageTk
+from email.mime import image
+
+from PIL import Image, ImageTk, ImageFilter, ImageOps
 import ttkbootstrap as ttk
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -82,6 +84,58 @@ def open_image():
 
     display_Image = ImageTk.PhotoImage(resized) #added tkinter compatibility
     redraw_image() #no recall, nothing was redrawn and no display
+    
+def filter_image():
+    global current_Image, display_Image
+    if current_Image is None:
+        messagebox.showinfo('Missing Image', 'Image required to apply filter')
+        return
+    
+    selected = FilterImage.get()
+
+    if selected == 'Contour':
+        filtered = current_Image.filter(ImageFilter.CONTOUR)
+    elif selected == 'B&W':
+        filtered = current_Image.convert(mode ='L')
+    elif selected == 'Sepia':
+        BnW = current_Image.convert(mode = 'L')
+        filtered = ImageOps.colorize(BnW, "#4F2E0D", "#CAA886")
+    elif selected == 'Blur':
+        filtered = current_Image.filter(ImageFilter.BLUR)
+    elif selected == 'Emboss':
+        filtered = current_Image.filter(ImageFilter.EMBOSS)
+    elif selected == 'Detail':
+        filtered = current_Image.filter(ImageFilter.DETAIL)
+    elif selected == 'Edge Enhance':
+        filtered = current_Image.filter(ImageFilter.EDGE_ENHANCE)
+    elif selected == 'Sharpen':
+        filtered = current_Image.filter(ImageFilter.SHARPEN)
+    elif selected == 'Smooth':
+        filtered = current_Image.filter(ImageFilter.SMOOTH)
+    elif selected == 'Select Filter':
+        messagebox.showinfo('Missing Input', 'Please select a filter before applying')
+
+    current_Image = filtered
+
+    canvas.update()
+    canvas_w = canvas.winfo_width()
+    canvas_h = canvas.winfo_height()
+
+    img_w, img_h = filtered.size
+    scale = min(canvas_w / img_w, canvas_h / img_h)
+
+    new_w = int(img_w * scale)
+    new_h = int(img_h * scale)
+
+    resized =  filtered.resize((new_w, new_h), Image.LANCZOS)
+
+    display_Image = ImageTk.PhotoImage(resized) 
+
+    redraw_image() 
+
+
+    
+
 
 #button components
 
@@ -89,19 +143,22 @@ button_frame = ttk.Frame(app)
 button_frame.pack(pady=10)
 button_frame.pack(anchor="center")
 
+Open_icon = Image.open("Open.png")
+Open_icon = Open_icon.resize((40, 40))
+Open_icon = ImageTk.PhotoImage(Open_icon)
+
 OpenImage = ttk.Button(
     app,
-    text="Import Image",
+    image=Open_icon,
     bootstyle="warning",
     command=open_image,
     width=20
 )
-
-
+Open_icon.image = Open_icon
 OpenImage.pack(side =tk.LEFT, pady=20, ipadx=10, ipady=10)
 
 
-save_icon = Image.open("test.png")
+save_icon = Image.open("save.png")
 save_icon = save_icon.resize((40, 40))
 save_icon = ImageTk.PhotoImage(save_icon)
 
@@ -117,6 +174,15 @@ SaveImage = ttk.Button(
 SaveImage.image = save_icon
 SaveImage.pack(side =tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 
+FilterImage = ttk.Combobox(
+    app, values=['Contour', 'B&W', 'Sepia', 'Blur', 'Emboss', 'Detail', 'Edge Enhance', 'Sharpen', 'Smooth'],
+    width = 20,
+    state = READONLY
+    )
 
+FilterImage.pack(side = tk.LEFT, pady=20, padx=10,)  
+FilterImage.set('Select Filter') 
+
+ttk.Button(app, text="Apply", bootstyle = 'warning', command = filter_image).pack(side=tk.LEFT, pady=20, padx = 10)
 
 app.mainloop()
