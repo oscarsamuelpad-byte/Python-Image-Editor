@@ -16,6 +16,7 @@ last_x, last_y = None, None
 DRAW_DELAY = 2
 
 #app window tingz
+
 app = ttk.Window(themename = "darkly")
 app.title("Photo Editor 1.0")
 app.geometry("800x600")
@@ -25,23 +26,31 @@ display_Image = None
 center_frame = ttk.Frame(app)
 center_frame.pack(fill=tk.BOTH, expand=True)
 
+#canvas = tk.Canvas(center_frame, bg="#333333")
+#center_frame.pack(fill=tk.BOTH, expand=True)
 canvas = tk.Canvas(center_frame, bg="#333333")
-canvas.pack(fill=tk.BOTH, expand=True)
+canvas.place(relx=0.5, rely=0.5, anchor="center", relwidth=1, relheight=1)
 canvas.bind('<Configure>', lambda e: redraw_image())
+
+app_icon = tk.PhotoImage(file="assets/icon.png") 
+app.iconphoto(True, app_icon)
 
 tool_var = tk.StringVar(value="None")
 
 #functions
 
-def drawable_image():
+def refresh_state_image():
     global draw
     draw = ImageDraw.Draw(current_Image)
+    update()
 
 def redraw_image():
         canvas.delete('all')
         if display_Image is None:
-           
-            canvas.create_text(500, 250, text='Open an image to begin', fill='white', font=(None, 16))
+            canvas_w = canvas.winfo_width()
+            canvas_h = canvas.winfo_height()
+
+            canvas.create_image(canvas_w // 2, canvas_h // 2, image=app_icon)
             return
         
         canvas_w = canvas.winfo_width()
@@ -100,8 +109,7 @@ def open_image():
     
     current_Image = img
     
-    drawable_image()
-    update()
+    refresh_state_image()
 
     
 def filter_image():
@@ -139,8 +147,7 @@ def filter_image():
 
     current_Image = filtered
 
-    drawable_image()
-    update()
+    refresh_state_image()
 
 def rotate_image():
     global current_Image, display_Image
@@ -153,8 +160,7 @@ def rotate_image():
 
     current_Image = current_Image.rotate(-90, expand=True)
 
-    drawable_image()
-    update() 
+    refresh_state_image()
     
 def flip_image():
     global current_Image, display_Image
@@ -167,8 +173,7 @@ def flip_image():
 
     current_Image = ImageOps.mirror(current_Image)
 
-    drawable_image()
-    update()
+    refresh_state_image()
 
 def undo_image():
     global current_Image, display_Image
@@ -180,8 +185,7 @@ def undo_image():
     
     current_Image = history.pop()
 
-    drawable_image()   
-    update()
+    refresh_state_image()
 
 #How values are updated
 def pen_size(val):
@@ -299,7 +303,7 @@ Open_icon = Open_icon.resize((40, 40))
 Open_icon = ImageTk.PhotoImage(Open_icon)
 
 OpenImage = ttk.Button(
-    app,
+    button_frame,
     image=Open_icon,
     bootstyle="warning",
     command=open_image,
@@ -314,8 +318,7 @@ save_icon = save_icon.resize((40, 40))
 save_icon = ImageTk.PhotoImage(save_icon)
 
 SaveImage = ttk.Button(
-
-     app,
+    button_frame,
      image = save_icon,
      bootstyle="warning",
      command = save_image,
@@ -326,7 +329,8 @@ SaveImage.image = save_icon
 SaveImage.pack(side =tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 
 FilterImage = ttk.Combobox(
-    app, values=['Contour', 'B&W', 'Sepia', 'Blur', 'Emboss', 'Detail', 'Edge Enhance', 'Sharpen', 'Smooth'],
+    button_frame, 
+    values=['Contour', 'B&W', 'Sepia', 'Blur', 'Emboss', 'Detail', 'Edge Enhance', 'Sharpen', 'Smooth'],
     width = 20,
     state = READONLY
     )
@@ -334,7 +338,12 @@ FilterImage = ttk.Combobox(
 FilterImage.pack(side = tk.LEFT, pady=20, padx=10,)  
 FilterImage.set('Select Filter') 
 
-ttk.Button(app, text="Apply", bootstyle = 'warning', command = filter_image).pack(side=tk.LEFT, pady=20, padx = 10)
+ttk.Button(
+    button_frame, 
+    text="Apply", 
+    bootstyle = 'warning', 
+    command = filter_image).pack(side=tk.LEFT, pady=20, padx = 10
+    )
 
 
 rotate_icon = Image.open("assets/rotate.png")
@@ -342,7 +351,7 @@ rotate_icon = rotate_icon.resize((40, 40))
 rotate_icon = ImageTk.PhotoImage(rotate_icon)
 
 RotateImage = ttk.Button(
-        app,
+        button_frame,
         image = rotate_icon,
         bootstyle = 'Warning',
         command = rotate_image,
@@ -357,7 +366,7 @@ flip_icon = flip_icon.resize((40, 40))
 flip_Icon = ImageTk.PhotoImage(flip_icon)
 
 FlipImage = ttk.Button(
-    app,
+    button_frame,
     image = flip_Icon,
     bootstyle = 'Warning',
     command = flip_image,
@@ -372,7 +381,7 @@ undo_icon = undo_icon.resize((40, 40))
 undo_icon = ImageTk.PhotoImage(undo_icon)
 
 UndoAction = ttk.Button(
-    app,
+    button_frame,
     image = undo_icon,
     bootstyle = 'Warning',
     command = undo_image,
@@ -384,7 +393,7 @@ UndoAction.pack(side = tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 
 #scale for pen and eraser size
 PenScale = tb.Scale(
-    app,
+    button_frame,
     orient = VERTICAL,
     style = 'warning',
     length = 50,
@@ -394,7 +403,7 @@ PenScale = tb.Scale(
     )
 
 EraserScale = tb.Scale(
-    app,
+    button_frame,
     orient = VERTICAL,
     style = 'danger',
     length = 50,
@@ -404,8 +413,8 @@ EraserScale = tb.Scale(
     command = eraser_size
 )
 
-eraser_size_label = ttk.Label(app)
-pen_size_label = ttk.Label(app, text="Pen size: 0")
+eraser_size_label = ttk.Label(button_frame)
+pen_size_label = ttk.Label(button_frame)
 #Initial values of scales and labels
 PenScale.set(0)
 EraserScale.set(0)
@@ -418,7 +427,7 @@ eraser_size_label.pack(side=tk.LEFT)
 
 
 PenColor = ttk.Combobox(
-    app, values=['Red', 'Green', 'Blue', 'Yellow', 'Black', 'White'],
+    button_frame, values=['Red', 'Green', 'Blue', 'Yellow', 'Black', 'White'],
     width = 20,
     state = READONLY
     
@@ -428,11 +437,13 @@ PenColor.bind("<<ComboboxSelected>>", set_color)
 PenColor.pack(side = tk.LEFT, pady=20, padx=10)
 PenColor.set('Select Color of choice')
 
-
+Pen_icon = Image.open("assets/Brush.png")
+Pen_icon = Pen_icon.resize((40, 40))
+Pen_icon = ImageTk.PhotoImage(Pen_icon)
 
 PenChoice = ttk.Radiobutton(
-    app,
-    text = 'Pen', 
+    button_frame,
+    image = Pen_icon, 
     value = 'Pen', 
     bootstyle = 'warning',
     variable = tool_var,
@@ -442,9 +453,13 @@ PenChoice = ttk.Radiobutton(
 )
 PenChoice.pack(side=tk.LEFT, pady=20, padx=10)
 
+Eraser_icon = Image.open("assets/Eraser.png")
+Eraser_icon = Eraser_icon.resize((40, 40))
+Eraser_icon = ImageTk.PhotoImage(Eraser_icon)
+
 EraserChoice = ttk.Radiobutton(
-    app,
-    text = 'Eraser', 
+    button_frame,
+    image = Eraser_icon,
     value = 'Eraser',
     variable = tool_var,
     command = update_tool,
