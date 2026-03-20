@@ -1,4 +1,4 @@
-# Import things
+# Imports and other necessary stuff
 
 from PIL import Image, ImageTk, ImageFilter, ImageOps
 import ttkbootstrap as ttk
@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from ttkbootstrap.constants import *
 import os
-
+history = []
 
 #app window tingz
 app = ttk.Window(themename = "darkly")
@@ -86,6 +86,7 @@ def open_image():
     
 def filter_image():
     global current_Image, display_Image
+    
     if current_Image is None:
         messagebox.showinfo('Missing Image', 'Image required to apply filter')
         return
@@ -114,6 +115,8 @@ def filter_image():
     elif selected == 'Select Filter':
         messagebox.showinfo('Missing Input', 'Please select a filter before applying')
 
+    history.append(current_Image.copy())
+
     current_Image = filtered
 
     canvas.update()
@@ -134,6 +137,7 @@ def filter_image():
 
 def rotate_image():
     global current_Image, display_Image
+
     if current_Image is None:
         messagebox.showinfo('Missing Image', 'Image is required before rotating')
         return
@@ -177,6 +181,30 @@ def flip_image():
     display_Image = ImageTk.PhotoImage(resized) 
     redraw_image() 
 
+def undo_image():
+    global current_Image, display_Image
+        
+    if not history: 
+        messagebox.showinfo('Missing Input', 'No actions to undo')
+        return
+
+    
+    current_Image = history.pop()    
+
+    canvas.update()
+    canvas_w = canvas.winfo_width()
+    canvas_h = canvas.winfo_height()
+
+    img_w, img_h = current_Image.size
+    scale = min(canvas_w / img_w, canvas_h / img_h)
+
+    new_w = int(img_w * scale)
+    new_h = int(img_h * scale)
+
+    resized =  current_Image.resize((new_w, new_h), Image.LANCZOS)
+
+    display_Image = ImageTk.PhotoImage(resized) 
+    redraw_image() 
 
 
 
@@ -267,7 +295,7 @@ UndoAction = ttk.Button(
     app,
     image = undo_icon,
     bootstyle = 'Warning',
-    #command = undo_image,
+    command = undo_image,
     width = 20
 )
 
