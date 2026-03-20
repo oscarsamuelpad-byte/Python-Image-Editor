@@ -1,7 +1,7 @@
 # Imports and other necessary stuff
 
 from pydoc import text
-
+from PIL import ImageDraw
 from PIL import Image, ImageTk, ImageFilter, ImageOps
 import ttkbootstrap as ttk
 import ttkbootstrap as tb
@@ -11,12 +11,13 @@ from ttkbootstrap.constants import *
 import os
 
 history = []
-
+draw_color = (0, 0, 0, 255)
+last_x, last_y = None, None
 
 #app window tingz
 app = ttk.Window(themename = "darkly")
 app.title("Photo Editor 1.0")
-app.geometry("1280x720")
+app.geometry("800x600")
 current_Image = None
 display_Image = None
 
@@ -30,6 +31,8 @@ canvas.bind('<Configure>', lambda e: redraw_image())
 tool_var = tk.StringVar(value="None")
 
 #functions
+
+
 
 def redraw_image():
         canvas.delete('all')
@@ -45,6 +48,27 @@ def redraw_image():
         x = max(0, (canvas_w - img_w) // 2)
         y = max(0, (canvas_h - img_h) // 2)
         canvas.create_image(x, y, anchor='nw', image=display_Image)
+
+def update():
+        if current_Image is None:
+            return
+        
+        global display_Image
+
+        canvas.update()
+        canvas_w = canvas.winfo_width()
+        canvas_h = canvas.winfo_height()
+
+        img_w, img_h = current_Image.size
+        scale = min(canvas_w / img_w, canvas_h / img_h)
+
+        new_w = int(img_w * scale)
+        new_h = int(img_h * scale)
+
+        resized = current_Image.resize((new_w, new_h), Image.LANCZOS)
+        display_Image = ImageTk.PhotoImage(resized)
+
+        redraw_image()
 
 def save_image():
      if current_Image is None:
@@ -65,30 +89,19 @@ def open_image():
         return
 
     try:
-        img = Image.open(path)
+        img = Image.open(path).convert("RGBA")
         print("Opened:", img)  
     except Exception as e:
         messagebox.showerror('Open Image', f'Failed to open image:\n{e}')
 
     
     current_Image = img
+    #drawing purposes
+    global draw
+    draw = ImageDraw.Draw(current_Image)
 
-    #Now, we need to rescale the image
+    update()
 
-    canvas.update()
-    canvas_w = canvas.winfo_width()
-    canvas_h = canvas.winfo_height()
-
-    img_w, img_h = img.size
-    scale = min(canvas_w / img_w, canvas_h / img_h)
-
-    new_w = int(img_w * scale)
-    new_h = int(img_h * scale)
-
-    resized =  img.resize((new_w, new_h), Image.LANCZOS)
-
-    display_Image = ImageTk.PhotoImage(resized) #added tkinter compatibility
-    redraw_image() #no recall, nothing was redrawn and no display
     
 def filter_image():
     global current_Image, display_Image
@@ -125,21 +138,7 @@ def filter_image():
 
     current_Image = filtered
 
-    canvas.update()
-    canvas_w = canvas.winfo_width()
-    canvas_h = canvas.winfo_height()
-
-    img_w, img_h = filtered.size
-    scale = min(canvas_w / img_w, canvas_h / img_h)
-
-    new_w = int(img_w * scale)
-    new_h = int(img_h * scale)
-
-    resized =  filtered.resize((new_w, new_h), Image.LANCZOS)
-
-    display_Image = ImageTk.PhotoImage(resized) 
-
-    redraw_image() 
+    update()
 
 def rotate_image():
     global current_Image, display_Image
@@ -152,20 +151,7 @@ def rotate_image():
 
     current_Image = current_Image.rotate(-90, expand=True)
 
-    canvas.update()
-    canvas_w = canvas.winfo_width()
-    canvas_h = canvas.winfo_height()
-
-    img_w, img_h = current_Image.size
-    scale = min(canvas_w / img_w, canvas_h / img_h)
-
-    new_w = int(img_w * scale)
-    new_h = int(img_h * scale)
-
-    resized =  current_Image.resize((new_w, new_h), Image.LANCZOS)
-
-    display_Image = ImageTk.PhotoImage(resized) 
-    redraw_image() 
+    update() 
     
 def flip_image():
     global current_Image, display_Image
@@ -178,20 +164,7 @@ def flip_image():
 
     current_Image = ImageOps.mirror(current_Image)
 
-    canvas.update()
-    canvas_w = canvas.winfo_width()
-    canvas_h = canvas.winfo_height()
-
-    img_w, img_h = current_Image.size
-    scale = min(canvas_w / img_w, canvas_h / img_h)
-
-    new_w = int(img_w * scale)
-    new_h = int(img_h * scale)
-
-    resized =  current_Image.resize((new_w, new_h), Image.LANCZOS)
-
-    display_Image = ImageTk.PhotoImage(resized) 
-    redraw_image() 
+    update()
 
 def undo_image():
     global current_Image, display_Image
@@ -203,20 +176,7 @@ def undo_image():
     
     current_Image = history.pop()    
 
-    canvas.update()
-    canvas_w = canvas.winfo_width()
-    canvas_h = canvas.winfo_height()
-
-    img_w, img_h = current_Image.size
-    scale = min(canvas_w / img_w, canvas_h / img_h)
-
-    new_w = int(img_w * scale)
-    new_h = int(img_h * scale)
-
-    resized =  current_Image.resize((new_w, new_h), Image.LANCZOS)
-
-    display_Image = ImageTk.PhotoImage(resized) 
-    redraw_image() 
+    update()
 
 #How values are updated
 def pen_size(val):
@@ -237,6 +197,73 @@ def update_tool():
         PenScale.config(state=DISABLED)
         PenColor.config(state=DISABLED)
         EraserScale.config(state=NORMAL)
+
+def set_color(event=None):
+    global draw_color
+
+    colors = {
+        "Red": (255, 0, 0, 255),
+        "Green": (0, 255, 0, 255),
+        "Blue": (0, 0, 255, 255),
+        "Yellow": (255, 255, 0, 255),
+        "Black": (0, 0, 0, 255),
+        "White": (255, 255, 255, 255)
+    }
+
+    draw_color = colors.get(PenColor.get(), (0, 0, 0, 255))
+
+def start_draw(event):
+    global last_x, last_y
+    last_x, last_y = event.x, event.y
+
+def draw_image(event):
+    global last_x, last_y, current_Image, draw
+
+    if last_x is None or last_y is None:
+        return
+
+    tool = tool_var.get()
+
+    if tool == 'Pen':
+        size = int(float(PenScale.get()))
+        color = draw_color
+
+    elif tool == 'Eraser':
+        size = int(float(EraserScale.get()))
+        color = (0, 0, 0, 0) 
+
+    else:
+        return
+    
+    canvas_w = canvas.winfo_width()
+    canvas_h = canvas.winfo_height()
+
+    img_w, img_h = current_Image.size
+    
+
+    scale = min(canvas_w / img_w, canvas_h / img_h)
+
+    offset_x = (canvas_w - img_w * scale) / 2
+    offset_y = (canvas_h - img_h * scale) / 2
+
+    x1 = int((last_x - offset_x) / scale)
+    y1 = int((last_y - offset_y) / scale)
+    x2 = int((event.x - offset_x) / scale)
+    y2 = int((event.y - offset_y) / scale)
+
+    draw.line([x1, y1, x2, y2], fill=color, width=size)
+
+    
+
+    update()
+
+def stop_draw(event):
+    global last_x, last_y
+    last_x, last_y = None, None
+
+canvas.bind("<Button-1>", start_draw)
+canvas.bind("<B1-Motion>", draw_image)
+canvas.bind("<ButtonRelease-1>", stop_draw)
 
 #button components
 
@@ -374,6 +401,7 @@ PenColor = ttk.Combobox(
     
     )
 
+PenColor.bind("<<ComboboxSelected>>", set_color)
 PenColor.pack(side = tk.LEFT, pady=20, padx=10)
 PenColor.set('Select Color of choice')
 
