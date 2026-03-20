@@ -33,7 +33,9 @@ tool_var = tk.StringVar(value="None")
 
 #functions
 
-
+def drawable_image():
+    global draw
+    draw = ImageDraw.Draw(current_Image)
 
 def redraw_image():
         canvas.delete('all')
@@ -97,10 +99,8 @@ def open_image():
 
     
     current_Image = img
-    #drawing purposes
-    global draw
-    draw = ImageDraw.Draw(current_Image)
-
+    
+    drawable_image()
     update()
 
     
@@ -139,6 +139,7 @@ def filter_image():
 
     current_Image = filtered
 
+    drawable_image()
     update()
 
 def rotate_image():
@@ -152,6 +153,7 @@ def rotate_image():
 
     current_Image = current_Image.rotate(-90, expand=True)
 
+    drawable_image()
     update() 
     
 def flip_image():
@@ -165,6 +167,7 @@ def flip_image():
 
     current_Image = ImageOps.mirror(current_Image)
 
+    drawable_image()
     update()
 
 def undo_image():
@@ -176,8 +179,8 @@ def undo_image():
 
     
     current_Image = history.pop()
-    draw = ImageDraw.Draw(current_Image)     
 
+    drawable_image()   
     update()
 
 #How values are updated
