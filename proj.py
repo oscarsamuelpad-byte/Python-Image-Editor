@@ -1,12 +1,17 @@
 # Imports and other necessary stuff
 
+from pydoc import text
+
 from PIL import Image, ImageTk, ImageFilter, ImageOps
 import ttkbootstrap as ttk
+import ttkbootstrap as tb
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from ttkbootstrap.constants import *
 import os
+
 history = []
+
 
 #app window tingz
 app = ttk.Window(themename = "darkly")
@@ -21,6 +26,8 @@ center_frame.pack(fill=tk.BOTH, expand=True)
 canvas = tk.Canvas(center_frame, bg="#333333")
 canvas.pack(fill=tk.BOTH, expand=True)
 canvas.bind('<Configure>', lambda e: redraw_image())
+
+tool_var = tk.StringVar(value="None")
 
 #functions
 
@@ -211,7 +218,25 @@ def undo_image():
     display_Image = ImageTk.PhotoImage(resized) 
     redraw_image() 
 
+#How values are updated
+def pen_size(val):
+    size = int(float(val))   
+    pen_size_label.config(text=f"Pen size: {size}")
 
+def eraser_size(val):
+    size = int(float(val))   
+    eraser_size_label.config(text=f"Eraser size: {size}")
+
+def update_tool():
+    tool = tool_var.get()
+    if tool == 'Pen':
+        EraserScale.config(state=DISABLED)
+        PenColor.config(state=READONLY)
+        PenScale.config(state=NORMAL)
+    elif tool == 'Eraser':
+        PenScale.config(state=DISABLED)
+        PenColor.config(state=DISABLED)
+        EraserScale.config(state=NORMAL)
 
 #button components
 
@@ -307,4 +332,77 @@ UndoAction = ttk.Button(
 undo_icon.image = undo_icon
 UndoAction.pack(side = tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 
+#scale for pen and eraser size
+PenScale = tb.Scale(
+    app,
+    orient = VERTICAL,
+    style = 'warning',
+    length = 50,
+    from_= 10 , 
+    to_ = 0,
+    command = pen_size
+    )
+
+EraserScale = tb.Scale(
+    app,
+    orient = VERTICAL,
+    style = 'danger',
+    length = 50,
+    from_= 10 , 
+    to_ = 0,
+    state = NORMAL,
+    command = eraser_size
+)
+
+eraser_size_label = ttk.Label(app)
+pen_size_label = ttk.Label(app, text="Pen size: 0")
+#Initial values of scales and labels
+PenScale.set(0)
+EraserScale.set(0)
+#Properties of scales and labels
+PenScale.pack(side=tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
+EraserScale.pack(side=tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
+
+pen_size_label.pack(side=tk.LEFT)
+eraser_size_label.pack(side=tk.LEFT)
+
+
+PenColor = ttk.Combobox(
+    app, values=['Red', 'Green', 'Blue', 'Yellow', 'Black', 'White'],
+    width = 20,
+    state = READONLY
+    
+    )
+
+PenColor.pack(side = tk.LEFT, pady=20, padx=10)
+PenColor.set('Select Color of choice')
+
+
+
+PenChoice = ttk.Radiobutton(
+    app,
+    text = 'Pen', 
+    value = 'Pen', 
+    bootstyle = 'warning',
+    variable = tool_var,
+    command = update_tool,
+
+
+)
+PenChoice.pack(side=tk.LEFT, pady=20, padx=10)
+
+EraserChoice = ttk.Radiobutton(
+    app,
+    text = 'Eraser', 
+    value = 'Eraser',
+    variable = tool_var,
+    command = update_tool,
+ 
+    bootstyle = 'warning'
+
+)
+EraserChoice.pack(side=tk.LEFT, pady=20, padx=10)
+
+
 app.mainloop()
+
