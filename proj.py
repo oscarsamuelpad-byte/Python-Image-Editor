@@ -13,6 +13,7 @@ import os
 history = []
 draw_color = (0, 0, 0, 255)
 last_x, last_y = None, None
+DRAW_DELAY = 2
 
 #app window tingz
 app = ttk.Window(themename = "darkly")
@@ -174,7 +175,8 @@ def undo_image():
         return
 
     
-    current_Image = history.pop()    
+    current_Image = history.pop()
+    draw = ImageDraw.Draw(current_Image)     
 
     update()
 
@@ -214,35 +216,28 @@ def set_color(event=None):
 
 def start_draw(event):
     global last_x, last_y
+    if current_Image is not None:
+        history.append(current_Image.copy())
+
     last_x, last_y = event.x, event.y
 
 def draw_image(event):
     global last_x, last_y, current_Image, draw
 
-    if last_x is None or last_y is None:
+    if current_Image is None:
+        return
+
+    if last_x == None or last_y == None:
+        last_x, last_y = event.x, event.y
         return
 
     tool = tool_var.get()
 
-    if tool == 'Pen':
-        size = int(float(PenScale.get()))
-        color = draw_color
-
-    elif tool == 'Eraser':
-        size = int(float(EraserScale.get()))
-        color = (0, 0, 0, 0) 
-
-    else:
-        return
-    
     canvas_w = canvas.winfo_width()
     canvas_h = canvas.winfo_height()
-
     img_w, img_h = current_Image.size
-    
 
     scale = min(canvas_w / img_w, canvas_h / img_h)
-
     offset_x = (canvas_w - img_w * scale) / 2
     offset_y = (canvas_h - img_h * scale) / 2
 
@@ -251,11 +246,36 @@ def draw_image(event):
     x2 = int((event.x - offset_x) / scale)
     y2 = int((event.y - offset_y) / scale)
 
-    draw.line([x1, y1, x2, y2], fill=color, width=size)
+    dx = x2 - x1
+    dy = y2 - y1
+    steps = int(max(abs(dx), abs(dy)))
 
-    
+    if steps == 0:
+        steps = 1
 
-    update()
+    if tool == 'Pen':
+        size = int(float(PenScale.get()))
+        color = draw_color
+
+    elif tool == 'Eraser':
+        size = int(float(EraserScale.get()))
+        color = (0, 0, 0, 0)  
+
+    else:
+        return
+
+    for i in range(steps):
+        x = int(x1 + dx * i / steps)
+        y = int(y1 + dy * i / steps)
+
+        draw.ellipse(
+            [x - size//2, y - size//2, x + size//2, y + size//2],
+            fill=color
+        )
+
+    last_x, last_y = event.x, event.y
+
+    canvas.after(DRAW_DELAY, update)
 
 def stop_draw(event):
     global last_x, last_y
