@@ -64,7 +64,6 @@ def open_image():
         messagebox.showerror('Open Image', f'Failed to open image:\n{e}')
 
     
-
     current_Image = img
 
     #Now, we need to rescale the image
@@ -141,6 +140,9 @@ def rotate_image():
     if current_Image is None:
         messagebox.showinfo('Missing Image', 'Image is required before rotating')
         return
+    
+    history.append(current_Image.copy())
+
     current_Image = current_Image.rotate(-90, expand=True)
 
     canvas.update()
@@ -164,6 +166,9 @@ def flip_image():
     if current_Image is None:
         messagebox.showinfo('Missing Image', 'Image is required before flipping')
         return
+    
+    history.append(current_Image.copy())
+
     current_Image = ImageOps.mirror(current_Image)
 
     canvas.update()
