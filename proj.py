@@ -15,10 +15,10 @@ draw_color = (0, 0, 0, 255)
 last_x, last_y = None, None
 DRAW_DELAY = 2
 
-#app window tingz
+#app window thing
 
 app = ttk.Window(themename = "darkly")
-app.title("Photo Editor 1.0")
+app.title("Photo Editor")
 app.geometry("800x600")
 current_Image = None
 display_Image = None
@@ -26,14 +26,12 @@ display_Image = None
 center_frame = ttk.Frame(app)
 center_frame.pack(fill=tk.BOTH, expand=True)
 
-#canvas = tk.Canvas(center_frame, bg="#333333")
-#center_frame.pack(fill=tk.BOTH, expand=True)
 canvas = tk.Canvas(center_frame, bg="#333333")
 canvas.place(relx=0.5, rely=0.5, anchor="center", relwidth=1, relheight=1)
 canvas.bind('<Configure>', lambda e: redraw_image())
 
 app_icon = tk.PhotoImage(file="assets/icon.png") 
-app.iconphoto(True, app_icon)
+app.iconbitmap("assets/icon.ico")
 
 tool_var = tk.StringVar(value="None")
 
