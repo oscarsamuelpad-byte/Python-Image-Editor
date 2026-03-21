@@ -124,10 +124,10 @@ def filter_image():
     if selected == 'Contour':
         filtered = current_Image.filter(ImageFilter.CONTOUR)
     elif selected == 'B&W':
-        filtered = current_Image.convert(mode ='L')
+        filtered = current_Image.convert(mode ='L').convert(mode = 'RGBA')
     elif selected == 'Sepia':
         BnW = current_Image.convert(mode = 'L')
-        filtered = ImageOps.colorize(BnW, "#4F2E0D", "#CAA886")
+        filtered = ImageOps.colorize(BnW, "#4F2E0D", "#CAA886").convert(mode = 'RGBA')
     elif selected == 'Blur':
         filtered = current_Image.filter(ImageFilter.BLUR)
     elif selected == 'Emboss':
@@ -189,11 +189,11 @@ def undo_image():
 
 #How values are updated
 def pen_size(val):
-    size = int(float(val))   
+    size = int(float(val)-1)   
     pen_size_label.config(text=f"Pen size: {size}")
 
 def eraser_size(val):
-    size = int(float(val))   
+    size = int(float(val)-1)   
     eraser_size_label.config(text=f"Eraser size: {size}")
 
 def update_tool():
@@ -397,8 +397,8 @@ PenScale = tb.Scale(
     orient = VERTICAL,
     style = 'warning',
     length = 50,
-    from_= 10 , 
-    to_ = 0,
+    from_= 11 , 
+    to_ = 1,
     command = pen_size
     )
 
@@ -407,8 +407,8 @@ EraserScale = tb.Scale(
     orient = VERTICAL,
     style = 'danger',
     length = 50,
-    from_= 10 , 
-    to_ = 0,
+    from_= 11 , 
+    to_ = 1,
     state = NORMAL,
     command = eraser_size
 )
@@ -416,8 +416,8 @@ EraserScale = tb.Scale(
 eraser_size_label = ttk.Label(button_frame)
 pen_size_label = ttk.Label(button_frame)
 #Initial values of scales and labels
-PenScale.set(0)
-EraserScale.set(0)
+PenScale.set(1)
+EraserScale.set(1)
 #Properties of scales and labels
 PenScale.pack(side=tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
 EraserScale.pack(side=tk.LEFT, pady=20, padx=10, ipadx=10, ipady=10)
