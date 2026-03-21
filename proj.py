@@ -46,7 +46,7 @@ def refresh_state_image():
 
 def redraw_image():
         canvas.delete('all')
-        if display_Image is None:
+        if display_Image == None:
             canvas_w = canvas.winfo_width()
             canvas_h = canvas.winfo_height()
 
@@ -62,7 +62,7 @@ def redraw_image():
         canvas.create_image(x, y, anchor='nw', image=display_Image)
 
 def update():
-        if current_Image is None:
+        if current_Image == None:
             return
         
         global display_Image
@@ -83,7 +83,7 @@ def update():
         redraw_image()
 
 def save_image():
-     if current_Image is None:
+     if current_Image == None:
         messagebox.showinfo('Missing Image', 'No image to save')
         return
      path = filedialog.asksaveasfilename(defaultextension='.png', filetypes=[('PNG', '*.png'), ('JPEG', '*.jpg;*.jpeg'), ('BMP', '*.bmp')])
@@ -115,7 +115,7 @@ def open_image():
 def filter_image():
     global current_Image, display_Image
     
-    if current_Image is None:
+    if current_Image == None:
         messagebox.showinfo('Missing Image', 'Image required to apply filter')
         return
     
@@ -152,7 +152,7 @@ def filter_image():
 def rotate_image():
     global current_Image, display_Image
 
-    if current_Image is None:
+    if current_Image == None:
         messagebox.showinfo('Missing Image', 'Image is required before rotating')
         return
     
@@ -165,7 +165,7 @@ def rotate_image():
 def flip_image():
     global current_Image, display_Image
 
-    if current_Image is None:
+    if current_Image == None:
         messagebox.showinfo('Missing Image', 'Image is required before flipping')
         return
     
@@ -223,7 +223,7 @@ def set_color(event=None):
 
 def start_draw(event):
     global last_x, last_y
-    if current_Image is not None:
+    if current_Image != None:
         history.append(current_Image.copy())
 
     last_x, last_y = event.x, event.y
@@ -231,7 +231,7 @@ def start_draw(event):
 def draw_image(event):
     global last_x, last_y, current_Image, draw
 
-    if current_Image is None:
+    if current_Image == None:
         return
 
     if last_x == None or last_y == None:
